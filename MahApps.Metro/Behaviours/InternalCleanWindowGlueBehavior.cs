@@ -12,7 +12,7 @@ using MahApps.Metro.Controls;
 namespace MahApps.Metro.Behaviours
 {
     //in order to get around some short comings in XAML, I needed a code behind class that I could manipulate the window from.
-    internal class InternalCleanWindowGlueBehavior: Behavior<Window>
+    internal class InternalCleanWindowGlueBehavior : Behavior<Window>
     {
         public MetroWindow AssociatedMetroWindow { get { return this.AssociatedObject as MetroWindow; } }
 
@@ -54,21 +54,8 @@ namespace MahApps.Metro.Behaviours
 
         void AssociatedMetroWindow_FlyoutsStatusChanged(object sender, RoutedEventArgs e)
         {
-            MetroWindow.FlyoutStatusChangedRoutedEventArgs args = e as MetroWindow.FlyoutStatusChangedRoutedEventArgs;
-            var flyout = args.ChangedFlyout;
-
-            if (flyout.Position == Position.Right || flyout.Position == Position.Top)
-            {
-                if (flyout.IsOpen)
-                {
-                    this.AssociatedMetroWindow.HandleFlyout(flyout, (Brush)this.AssociatedMetroWindow.FindResource("WhiteColorBrush"));
-                }
-                else
-                {
-                    this.SetWindowCommandButtonsToBlackBrush();
-                    AssociatedMetroWindow.WindowButtonCommands.SetResourceReference(Control.ForegroundProperty, "BlackColorBrush");
-                }
-            }
+            var flyouts = this.AssociatedMetroWindow.Flyouts.Items.Cast<Flyout>().ToList();
+            this.AssociatedMetroWindow.HandleWindowCommandsForFlyouts(flyouts, (Brush) this.AssociatedMetroWindow.FindResource("BlackColorBrush"));
         }
     }
 }
