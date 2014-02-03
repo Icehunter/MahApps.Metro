@@ -48,7 +48,7 @@ namespace MahApps.Metro.Controls
         public static readonly DependencyProperty ShowWindowCommandsOnTopProperty = DependencyProperty.Register("ShowWindowCommandsOnTop", typeof(bool), typeof(MetroWindow), new PropertyMetadata(true));
         public static readonly DependencyProperty TextBlockStyleProperty = DependencyProperty.Register("TextBlockStyle", typeof(Style), typeof(MetroWindow), new PropertyMetadata(default(Style)));
         public static readonly DependencyProperty UseNoneWindowStyleProperty = DependencyProperty.Register("UseNoneWindowStyle", typeof(bool), typeof(MetroWindow), new PropertyMetadata(false, OnUseNoneWindowStylePropertyChangedCallback));
-
+        internal static readonly DependencyProperty OverrideDefaultWindowCommandsBrushProperty = DependencyProperty.Register("OverrideDefaultWindowCommandsBrush", typeof(SolidColorBrush), typeof(MetroWindow));
         bool isDragging;
         internal ContentPresenter WindowCommandsPresenter;
         internal WindowButtonCommands WindowButtonCommands;
@@ -68,6 +68,14 @@ namespace MahApps.Metro.Controls
             remove { RemoveHandler(FlyoutsStatusChangedEvent, value); }
         }
 
+        /// <summary>
+        /// CleanWindow sets this so it has the correct default window commands brush
+        /// </summary>
+        internal SolidColorBrush OverrideDefaultWindowCommandsBrush
+        {
+            get { return (SolidColorBrush)this.GetValue(OverrideDefaultWindowCommandsBrushProperty); }
+            set { this.SetValue(OverrideDefaultWindowCommandsBrushProperty, value); }
+        }
 
         public MetroDialogSettings MetroDialogOptions { get; private set; }
 
@@ -374,6 +382,8 @@ namespace MahApps.Metro.Controls
                 this.Flyouts = new FlyoutsControl();
             }
 
+            this.ResetAllWindowCommandsBrush();
+
             ThemeManager.IsThemeChanged += ThemeManagerOnIsThemeChanged;
             this.Unloaded += (o, args) => ThemeManager.IsThemeChanged -= ThemeManagerOnIsThemeChanged;
         }
@@ -382,7 +392,7 @@ namespace MahApps.Metro.Controls
         {
             if (e.Accent != null)
             {
-                var flyouts = this.Flyouts.Items.Cast<Flyout>().ToList();
+                var flyouts = this.Flyouts.GetFlyouts().ToList();
 
                 if (!flyouts.Any())
                     return;
@@ -563,7 +573,7 @@ namespace MahApps.Metro.Controls
                 //if ShowWindowCommandsOnTop is true, set the window commands' zindex to a number that is higher than the flyout's. 
                 WindowCommandsPresenter.SetValue(Panel.ZIndexProperty, this.ShowWindowCommandsOnTop ? zIndex : (zIndex > 0 ? zIndex - 1 : 0));
                 WindowButtonCommands.SetValue(Panel.ZIndexProperty, zIndex);
-                
+
                 this.HandleWindowCommandsForFlyouts(visibleFlyouts);
             }
 
