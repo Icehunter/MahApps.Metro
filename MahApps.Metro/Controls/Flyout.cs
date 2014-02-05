@@ -23,12 +23,13 @@ namespace MahApps.Metro.Controls
         
         public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register("Header", typeof(string), typeof(Flyout), new PropertyMetadata(default(string)));
         public static readonly DependencyProperty PositionProperty = DependencyProperty.Register("Position", typeof(Position), typeof(Flyout), new PropertyMetadata(Position.Left, PositionChanged));
-        public static readonly DependencyProperty IsPinnableProperty = DependencyProperty.Register("IsPinnable", typeof(bool), typeof(Flyout), new PropertyMetadata(default(bool)));
+        public static readonly DependencyProperty IsPinnedProperty = DependencyProperty.Register("IsPinned", typeof(bool), typeof(Flyout), new PropertyMetadata(true));
         public static readonly DependencyProperty IsOpenProperty = DependencyProperty.Register("IsOpen", typeof(bool), typeof(Flyout), new FrameworkPropertyMetadata(default(bool), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsOpenedChanged));
         public static readonly DependencyProperty IsModalProperty = DependencyProperty.Register("IsModal", typeof(bool), typeof(Flyout));
         public static readonly DependencyProperty HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", typeof(DataTemplate), typeof(Flyout));
         public static readonly DependencyProperty CloseCommandProperty = DependencyProperty.RegisterAttached("CloseCommand", typeof(ICommand), typeof(Flyout), new UIPropertyMetadata(null));
         public static readonly DependencyProperty ThemeProperty = DependencyProperty.Register("Theme", typeof(FlyoutTheme), typeof(Flyout), new FrameworkPropertyMetadata(FlyoutTheme.Dark, ThemeChanged));
+        public static readonly DependencyProperty ExternalCloseButtonProperty = DependencyProperty.Register("ExternalCloseButton", typeof(MouseButton), typeof(Flyout), new PropertyMetadata(MouseButton.Left));
 
         /// <summary>
         /// Gets the actual theme (dark/light) of this flyout.
@@ -64,12 +65,21 @@ namespace MahApps.Metro.Controls
         }
 
         /// <summary>
-        /// Gets/sets whether this flyout is pinnable.
+        /// Gets/sets whether this flyout stays open when the user clicks outside of it.
         /// </summary>
-        public bool IsPinnable
+        public bool IsPinned
         {
-            get { return (bool)GetValue(IsPinnableProperty); }
-            set { SetValue(IsPinnableProperty, value); }
+            get { return (bool)GetValue(IsPinnedProperty); }
+            set { SetValue(IsPinnedProperty, value); }
+        }
+        
+        /// <summary>
+        /// Gets/sets the mouse button that closes the flyout on an external mouse click.
+        /// </summary>
+        public MouseButton ExternalCloseButton
+        {
+            get { return (MouseButton) GetValue(ExternalCloseButtonProperty); }
+            set { SetValue(ExternalCloseButtonProperty, value); }
         }
 
         /// <summary>
@@ -247,24 +257,33 @@ namespace MahApps.Metro.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(Flyout), new FrameworkPropertyMetadata(typeof(Flyout)));
         }
 
+        Grid root;
+        EasingDoubleKeyFrame hideFrame;
+        EasingDoubleKeyFrame hideFrameY;
+        EasingDoubleKeyFrame showFrame;
+        EasingDoubleKeyFrame showFrameY;
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
+            
+            root = (Grid)GetTemplateChild("root");
+            if (root == null)
+                return;
+
+            hideFrame = (EasingDoubleKeyFrame)GetTemplateChild("hideFrame");
+            hideFrameY = (EasingDoubleKeyFrame)GetTemplateChild("hideFrameY");
+            showFrame = (EasingDoubleKeyFrame)GetTemplateChild("showFrame");
+            showFrameY = (EasingDoubleKeyFrame)GetTemplateChild("showFrameY");
+
+            if (hideFrame == null || showFrame == null || hideFrameY == null || showFrameY == null)
+                return;
+            
             ApplyAnimation(Position);
         }
 
         internal void ApplyAnimation(Position position)
         {
-            var root = (Grid)GetTemplateChild("root");
-            if (root == null)
-                return;
-
-            var hideFrame = (EasingDoubleKeyFrame)GetTemplateChild("hideFrame");
-            var hideFrameY = (EasingDoubleKeyFrame)GetTemplateChild("hideFrameY");
-            var showFrame = (EasingDoubleKeyFrame)GetTemplateChild("showFrame");
-            var showFrameY = (EasingDoubleKeyFrame)GetTemplateChild("showFrameY");
-
-            if (hideFrame == null || showFrame == null || hideFrameY == null || showFrameY == null)
+            if (root == null || hideFrame == null || showFrame == null || hideFrameY == null || showFrameY == null)
                 return;
 
             if (Position == Position.Left || Position == Position.Right)
@@ -307,24 +326,14 @@ namespace MahApps.Metro.Controls
             base.OnRenderSizeChanged(sizeInfo);
 
             if (!sizeInfo.WidthChanged && !sizeInfo.HeightChanged) return;
+            if (root == null || hideFrame == null || showFrame == null || hideFrameY == null || showFrameY == null)
+                return; // don't bother checking IsOpen and calling ApplyAnimation
 
             if (!IsOpen)
             {
                 ApplyAnimation(Position);
                 return;
             }
-
-            var root = (Grid)GetTemplateChild("root");
-            if (root == null)
-                return;
-
-            var hideFrame = (EasingDoubleKeyFrame)GetTemplateChild("hideFrame");
-            var hideFrameY = (EasingDoubleKeyFrame)GetTemplateChild("hideFrameY");
-            var showFrame = (EasingDoubleKeyFrame)GetTemplateChild("showFrame");
-            var showFrameY = (EasingDoubleKeyFrame)GetTemplateChild("showFrameY");
-
-            if (hideFrame == null || showFrame == null || hideFrameY == null || showFrameY == null)
-                return;
 
             if (Position == Position.Left || Position == Position.Right)
                 showFrame.Value = 0;
