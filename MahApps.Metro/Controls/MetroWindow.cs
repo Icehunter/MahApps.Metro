@@ -406,11 +406,17 @@ namespace MahApps.Metro.Controls
             }
         }
         
-        private void FlyoutsPreviewKeyDown(object sender, MouseButtonEventArgs e)
+        private void FlyoutsPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
+            FrameworkElement element = (e.OriginalSource as FrameworkElement);
+            if (element != null && element.TryFindParent<Flyout>() != null)
+            {
+                return;
+            }
+            
             if (Flyouts.OverrideExternalCloseButton == null)
             {
-                foreach (Flyout flyout in Flyouts.Items)
+                foreach (Flyout flyout in Flyouts.GetFlyouts())
                 {
                     if (flyout.ExternalCloseButton == e.ChangedButton && (flyout.IsPinned == false || Flyouts.OverrideIsPinned == true))
                     {
@@ -420,7 +426,7 @@ namespace MahApps.Metro.Controls
             }
             else if (Flyouts.OverrideExternalCloseButton == e.ChangedButton)
             {
-                foreach (Flyout flyout in Flyouts.Items)
+                foreach (Flyout flyout in Flyouts.GetFlyouts())
                 {
                     if (flyout.IsPinned == false || Flyouts.OverrideIsPinned == true)
                     {
@@ -453,8 +459,8 @@ namespace MahApps.Metro.Controls
             overlayBox = GetTemplateChild(PART_OverlayBox) as Grid;
             metroDialogContainer = GetTemplateChild(PART_MetroDialogContainer) as Grid;
             flyoutModal = GetTemplateChild(PART_FlyoutModal) as Rectangle;
-            flyoutModal.PreviewMouseDown += FlyoutsPreviewKeyDown;
-            this.PreviewMouseDown += FlyoutsPreviewKeyDown;
+            flyoutModal.PreviewMouseDown += FlyoutsPreviewMouseDown;
+            this.PreviewMouseDown += FlyoutsPreviewMouseDown;
 
             titleBar = GetTemplateChild(PART_TitleBar) as UIElement;
 
