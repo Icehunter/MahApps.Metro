@@ -8,15 +8,16 @@
                       ShowIconOnTitleBar="True"
                       GlowBrush="{DynamicResource AccentColorBrush}"
                       Title="CleanWindowDemo"
-                      Height="300"
-                      Width="300"
+                      Height="400"
+                      Width="800"
+                      ResizeMode="CanResizeWithGrip"
                       Style="{DynamicResource CleanWindowStyleKey}">
 
-    <i:Interaction.Behaviors>
-        <behaviours:BorderlessWindowBehavior ResizeWithGrip="True"
-                                             AllowsTransparency="False" />
-        <behaviours:GlowWindowBehavior />
-    </i:Interaction.Behaviors>
+<!--    <i:Interaction.Behaviors>-->
+<!--        <behaviours:BorderlessWindowBehavior ResizeWithGrip="True"-->
+<!--                                             AllowsTransparency="False" />-->
+<!--        <behaviours:GlowWindowBehavior />-->
+<!--    </i:Interaction.Behaviors>-->
 
     <Window.Resources>
         <ResourceDictionary>
@@ -37,13 +38,18 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Controls:MetroWindow.WindowCommands>
+    <Controls:MetroWindow.LeftWindowCommands>
         <Controls:WindowCommands>
             <Button Content="Test" />
-            <Button Content="Another Test" />
-            <ToggleButton Content="ToggleButton Test" />
         </Controls:WindowCommands>
-    </Controls:MetroWindow.WindowCommands>
+    </Controls:MetroWindow.LeftWindowCommands>
+
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button Content="Another Test" />
+            <ToggleButton Content="ToggleButton" />
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
 
     <Controls:MetroWindow.Flyouts>
         <Controls:FlyoutsControl>

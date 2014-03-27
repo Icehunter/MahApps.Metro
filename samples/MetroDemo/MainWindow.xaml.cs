@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media;
-using System.Windows.Threading;
-using MahApps.Metro;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
-using System.Collections.Generic;
-using System.Windows.Data;
 using MetroDemo.ExampleWindows;
 
 namespace MetroDemo
@@ -23,16 +15,9 @@ namespace MetroDemo
             InitializeComponent();
         }
 
-        private void ThemeLight(object sender, RoutedEventArgs e)
+        private void LaunchMahAppsOnGitHub(object sender, RoutedEventArgs e)
         {
-            var theme = ThemeManager.DetectTheme(Application.Current);
-            ThemeManager.ChangeTheme(Application.Current, theme.Item2, Theme.Light);
-        }
-
-        private void ThemeDark(object sender, RoutedEventArgs e)
-        {
-            var theme = ThemeManager.DetectTheme(Application.Current);
-            ThemeManager.ChangeTheme(Application.Current, theme.Item2, Theme.Dark);
+            System.Diagnostics.Process.Start("https://github.com/MahApps/MahApps.Metro");
         }
 
         private void LaunchVisualStudioDemo(object sender, RoutedEventArgs e)
