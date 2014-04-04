@@ -546,14 +546,6 @@ namespace MahApps.Metro.Controls
                 VisualStateManager.GoToState(this, "AfterLoaded", true);
             }
 
-            if (!ShowTitleBar && (icon == null || icon.Visibility != Visibility.Visible))
-            {
-                //Disables the system menu for reasons other than clicking an invisible titlebar.
-                IntPtr handle = new WindowInteropHelper(this).Handle;
-                UnsafeNativeMethods.SetWindowLong(handle, UnsafeNativeMethods.GWL_STYLE, 
-                    UnsafeNativeMethods.GetWindowLong(handle, UnsafeNativeMethods.GWL_STYLE) & ~UnsafeNativeMethods.WS_SYSMENU);
-            }
-
             // if UseNoneWindowStyle = true no title bar, window commands or min, max, close buttons should be shown
             if (UseNoneWindowStyle)
             {
@@ -857,7 +849,7 @@ namespace MahApps.Metro.Controls
 
         internal T GetPart<T>(string name) where T : DependencyObject
         {
-            return (T)GetTemplateChild(name);
+            return GetTemplateChild(name) as T;
         }
 
         private static void ShowSystemMenuPhysicalCoordinates(Window window, Point physicalScreenLocation)
