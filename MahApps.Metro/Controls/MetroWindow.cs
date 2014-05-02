@@ -10,6 +10,7 @@ using MahApps.Metro.Controls.Dialogs;
 using MahApps.Metro.Native;
 using System.Windows.Shapes;
 using System.Collections.Generic;
+using Microsoft.Windows.Shell;
 
 namespace MahApps.Metro.Controls
 {
@@ -50,10 +51,13 @@ namespace MahApps.Metro.Controls
         public static readonly DependencyProperty IgnoreTaskbarOnMaximizeProperty = DependencyProperty.Register("IgnoreTaskbarOnMaximize", typeof(bool), typeof(MetroWindow), new PropertyMetadata(false));
         public static readonly DependencyProperty FlyoutsProperty = DependencyProperty.Register("Flyouts", typeof(FlyoutsControl), typeof(MetroWindow), new PropertyMetadata(null));
         public static readonly DependencyProperty WindowTransitionsEnabledProperty = DependencyProperty.Register("WindowTransitionsEnabled", typeof(bool), typeof(MetroWindow), new PropertyMetadata(true));
+        public static readonly DependencyProperty MetroDialogOptionsProperty = DependencyProperty.Register("MetroDialogOptions", typeof(MetroDialogSettings), typeof(MetroWindow), new PropertyMetadata(new MetroDialogSettings()));
 
+        public static readonly DependencyProperty WindowTitleBrushProperty = DependencyProperty.Register("WindowTitleBrush", typeof(Brush), typeof(MetroWindow), new PropertyMetadata(Brushes.Transparent));
         public static readonly DependencyProperty GlowBrushProperty = DependencyProperty.Register("GlowBrush", typeof(SolidColorBrush), typeof(MetroWindow), new PropertyMetadata(null));
         public static readonly DependencyProperty NonActiveGlowBrushProperty = DependencyProperty.Register("NonActiveGlowBrush", typeof(SolidColorBrush), typeof(MetroWindow), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(153, 153, 153)))); // #999999
-        public static readonly DependencyProperty NonActiveBorderBrushProperty = DependencyProperty.Register("NonActiveBorderBrush", typeof(Brush), typeof(MetroWindow), new PropertyMetadata(null));
+        public static readonly DependencyProperty NonActiveBorderBrushProperty = DependencyProperty.Register("NonActiveBorderBrush", typeof(Brush), typeof(MetroWindow), new PropertyMetadata(Brushes.Gray));
+        public static readonly DependencyProperty NonActiveWindowTitleBrushProperty = DependencyProperty.Register("NonActiveWindowTitleBrush", typeof(Brush), typeof(MetroWindow), new PropertyMetadata(Brushes.Gray));
 
         public static readonly DependencyProperty IconTemplateProperty = DependencyProperty.Register("IconTemplate", typeof(DataTemplate), typeof(MetroWindow), new PropertyMetadata(null));
         public static readonly DependencyProperty TitleTemplateProperty = DependencyProperty.Register("TitleTemplate", typeof(DataTemplate), typeof(MetroWindow), new PropertyMetadata(null));
@@ -108,7 +112,12 @@ namespace MahApps.Metro.Controls
             set { this.SetValue(OverrideDefaultWindowCommandsBrushProperty, value); }
         }
 
-        public MetroDialogSettings MetroDialogOptions { get; private set; }
+        public MetroDialogSettings MetroDialogOptions
+        {
+            get { return (MetroDialogSettings)GetValue(MetroDialogOptionsProperty); }
+            set { SetValue(MetroDialogOptionsProperty, value); }
+        }
+
 
         [Obsolete("This propery isn't needed anymore, it will be deleted in next release...")]
         public Style TextBlockStyle
@@ -409,6 +418,15 @@ namespace MahApps.Metro.Controls
         }
 
         /// <summary>
+        /// Gets/sets the brush used for the Window's title bar.
+        /// </summary>
+        public Brush WindowTitleBrush
+        {
+            get { return (Brush)GetValue(WindowTitleBrushProperty); }
+            set { SetValue(WindowTitleBrushProperty, value); }
+        }
+
+        /// <summary>
         /// Gets/sets the brush used for the Window's glow.
         /// </summary>
         public SolidColorBrush GlowBrush
@@ -433,6 +451,15 @@ namespace MahApps.Metro.Controls
         {
             get { return (Brush)GetValue(NonActiveBorderBrushProperty); }
             set { SetValue(NonActiveBorderBrushProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets/sets the brush used for the Window's non-active title bar.
+        /// </summary>
+        public Brush NonActiveWindowTitleBrush
+        {
+            get { return (Brush)GetValue(NonActiveWindowTitleBrushProperty); }
+            set { SetValue(NonActiveWindowTitleBrushProperty, value); }
         }
 
         /// <summary>
@@ -545,9 +572,6 @@ namespace MahApps.Metro.Controls
         public MetroWindow()
         {
             Loaded += this.MetroWindow_Loaded;
-
-            if (MetroDialogOptions == null)
-                MetroDialogOptions = new MetroDialogSettings();
         }
 
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
@@ -835,7 +859,14 @@ namespace MahApps.Metro.Controls
                         (ResizeMode == ResizeMode.CanResizeWithGrip || ResizeMode == ResizeMode.CanResize) &&
                         mPoint.Y <= TitlebarHeight && TitlebarHeight > 0)
                     {
-                        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                        if (WindowState == WindowState.Maximized)
+                        {
+                            Microsoft.Windows.Shell.SystemCommands.RestoreWindow(this);
+                        }
+                        else
+                        {
+                            Microsoft.Windows.Shell.SystemCommands.MaximizeWindow(this);
+                        }
                     }
                 }
             }

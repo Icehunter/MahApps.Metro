@@ -20,15 +20,9 @@ namespace MahApps.Metro.Behaviours
         private HwndSource hwndSource;
         private WindowChrome windowChrome;
         private Thickness? savedBorderThickness = null;
-        private Brush nonActiveBorderColor;
-        private Brush savedBorderBrush = null;
 
         protected override void OnAttached()
         {
-            // maybe this can change to set via window from a dependency property
-            this.nonActiveBorderColor = new SolidColorBrush(Colors.Gray);
-            this.nonActiveBorderColor.Freeze();
-
             windowChrome = new WindowChrome();
             windowChrome.ResizeBorderThickness = SystemParameters2.Current.WindowResizeBorderThickness;
             windowChrome.CaptionHeight = 0;
@@ -67,7 +61,6 @@ namespace MahApps.Metro.Behaviours
             AssociatedObject.SourceInitialized += AssociatedObject_SourceInitialized;
             AssociatedObject.StateChanged += AssociatedObject_StateChanged;
             AssociatedObject.Activated += AssociatedObject_Activated;
-            AssociatedObject.Deactivated += AssociatedObject_Deactivated;
 
             // handle resize mode after loading the window
             System.ComponentModel.DependencyPropertyDescriptor.FromProperty(Window.ResizeModeProperty, typeof(Window))
@@ -139,7 +132,6 @@ namespace MahApps.Metro.Behaviours
                 AssociatedObject.SourceInitialized -= AssociatedObject_SourceInitialized;
                 AssociatedObject.StateChanged -= AssociatedObject_StateChanged;
                 AssociatedObject.Activated -= AssociatedObject_Activated;
-                AssociatedObject.Deactivated -= AssociatedObject_Deactivated;
                 if (hwndSource != null)
                 {
                     hwndSource.RemoveHook(WindowProc);
@@ -191,56 +183,17 @@ namespace MahApps.Metro.Behaviours
                     returnval = UnsafeNativeMethods.DefWindowProc(hwnd, msg, wParam, new IntPtr(-1));
                     handled = true;
                     break;
+                /*case Constants.WM_MOVE:
+                    this.HandleMaximize(true);
+                    break;*/
             }
 
             return returnval;
         }
 
-        private bool IsGreaterOrEqualWin8()
-        {
-            return Environment.OSVersion.Version.CompareTo(new Version(6, 2)) > 0;
-        }
-
         private void AssociatedObject_Activated(object sender, EventArgs e)
         {
-            if (savedBorderBrush != null)
-            {
-                AssociatedObject.BorderBrush = savedBorderBrush;
-            }
             HandleMaximize();
-            
-            HandleTaskbarItem();
-        }
-
-        private void HandleTaskbarItem()
-        {
-            if (IsGreaterOrEqualWin8())
-            {
-                // nasty hack for >= win 8
-                // the taskbar item disappears after this steps
-                // - Set IgnoreTaskbarOnMaximize="True"
-                // - Maximize the application
-                // - Minimize and focus another application OR click somewhere on a second monitor
-                // - Focus the original application again
-                // - The taskbar item disappeared
-                var showInTaskbar = AssociatedObject.ShowInTaskbar;
-                if (showInTaskbar && AssociatedObject.WindowState == WindowState.Minimized)
-                {
-                    AssociatedObject.ShowInTaskbar = false;
-                    AssociatedObject.ShowInTaskbar = showInTaskbar;
-                }
-            }
-        }
-
-        private void AssociatedObject_Deactivated(object sender, EventArgs e)
-        {
-            if (AssociatedObject.BorderBrush != null)
-            {
-                savedBorderBrush = AssociatedObject.BorderBrush;
-                AssociatedObject.BorderBrush = this.nonActiveBorderColor;
-            }
-
-            HandleTaskbarItem();
         }
 
         private void AssociatedObject_StateChanged(object sender, EventArgs e)
@@ -248,7 +201,7 @@ namespace MahApps.Metro.Behaviours
             HandleMaximize();
         }
 
-        private void HandleMaximize()
+        private void HandleMaximize(bool handleOnlyMaximized = false)
         {
             if (AssociatedObject.WindowState == WindowState.Maximized)
             {
@@ -271,7 +224,7 @@ namespace MahApps.Metro.Behaviours
                     UnsafeNativeMethods.SetWindowPos(handle, new IntPtr(-2), x, y, cx, cy, 0x0040);
                 }
             }
-            else
+            else if (!handleOnlyMaximized)
             {
                 windowChrome.ResizeBorderThickness = SystemParameters2.Current.WindowResizeBorderThickness;
                 AssociatedObject.BorderThickness = savedBorderThickness.GetValueOrDefault(new Thickness(0));
@@ -400,8 +353,11 @@ namespace MahApps.Metro.Behaviours
 
             // handle size to content (thanks @lynnx)
             var sizeToContent = AssociatedObject.SizeToContent;
+            var snapsToDevicePixels = AssociatedObject.SnapsToDevicePixels;
+            AssociatedObject.SnapsToDevicePixels = true;
             AssociatedObject.SizeToContent = sizeToContent == SizeToContent.WidthAndHeight ? SizeToContent.Height : SizeToContent.Manual;
             AssociatedObject.SizeToContent = sizeToContent;
+            AssociatedObject.SnapsToDevicePixels = snapsToDevicePixels;
         }
 
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
@@ -425,12 +381,6 @@ namespace MahApps.Metro.Behaviours
 
             // handle resize mode
             this.HandleResizeMode(window, window.ResizeMode);
-
-            // non-active border brush
-            if (window.NonActiveBorderBrush != null)
-            {
-                this.nonActiveBorderColor = window.NonActiveBorderBrush;
-            }
         }
 
         public static readonly DependencyProperty EnableDWMDropShadowProperty = DependencyProperty.Register("EnableDWMDropShadow", typeof(bool), typeof(BorderlessWindowBehavior), new PropertyMetadata(false));
