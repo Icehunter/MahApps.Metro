@@ -28,16 +28,6 @@ namespace Mahapps.Metro.Tests
         }
 
         [Fact]
-        public async Task CanChangeLegacyTheme()
-        {
-            await TestHost.SwitchToAppThread();
-
-            var window = await WindowHelpers.CreateInvisibleWindowAsync<MetroWindow>();
-
-            ThemeManager.ChangeTheme(window, ThemeManager.DefaultAccents.First(accent => accent.Name == "Blue"), Theme.Dark);
-        }
-
-        [Fact]
         public async Task ChangesWindowTheme()
         {
             await TestHost.SwitchToAppThread();
@@ -84,6 +74,60 @@ namespace Mahapps.Metro.Tests
             AppTheme theme = ThemeManager.GetInverseAppTheme(appTheme);
 
             Assert.Null(theme);
+        }
+
+        [Fact]
+        public async Task GetAppThemeIsCaseInsensitive()
+        {
+            await TestHost.SwitchToAppThread();
+
+            AppTheme theme = ThemeManager.GetAppTheme("basedark");
+
+            Assert.NotNull(theme);
+            Assert.Equal(new Uri("pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseDark.xaml"), theme.Resources.Source);
+        }
+
+        [Fact]
+        public async Task GetAppThemeWithUriIsCaseInsensitive()
+        {
+            await TestHost.SwitchToAppThread();
+
+            var dic = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/MahApps.Metro;component/Styles/Accents/basedark.xaml")
+            };
+
+            AppTheme detected = ThemeManager.GetAppTheme(dic);
+
+            Assert.NotNull(detected);
+            Assert.Equal("BaseDark", detected.Name);
+        }
+
+        [Fact]
+        public async Task GetAccentIsCaseInsensitive()
+        {
+            await TestHost.SwitchToAppThread();
+
+            Accent accent = ThemeManager.GetAccent("blue");
+
+            Assert.NotNull(accent);
+            Assert.Equal(new Uri("pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"), accent.Resources.Source);
+        }
+
+        [Fact]
+        public async Task GetAccentWithUriIsCaseInsensitive()
+        {
+            await TestHost.SwitchToAppThread();
+
+            var dic = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/MahApps.Metro;component/Styles/Accents/blue.xaml")
+            };
+
+            Accent detected = ThemeManager.GetAccent(dic);
+
+            Assert.NotNull(detected);
+            Assert.Equal("Blue", detected.Name);
         }
     }
 }

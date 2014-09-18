@@ -109,21 +109,6 @@ namespace Mahapps.Metro.Tests
         }
 
         [Fact]
-        public async Task HiddenWindowCommandsAreBelowFlyoutObsoleteTest()
-        {
-            await TestHost.SwitchToAppThread();
-
-            var window = await WindowHelpers.CreateInvisibleWindowAsync<FlyoutWindow>();
-            window.RightFlyout.IsOpen = true;
-            window.ShowWindowCommandsOnTop = false;
-
-            int windowCommandsZIndex = Panel.GetZIndex(window.WindowButtonCommands);
-            int flyoutindex = Panel.GetZIndex(window.RightFlyout);
-
-            Assert.True(flyoutindex < windowCommandsZIndex);
-        }
-
-        [Fact]
         public async Task LeftWindowCommandsAreOverFlyout()
         {
             await TestHost.SwitchToAppThread();
@@ -165,6 +150,25 @@ namespace Mahapps.Metro.Tests
             int flyoutindex = Panel.GetZIndex(window.RightFlyout);
 
             Assert.True(windowCommandsZIndex > flyoutindex);
+        }
+
+        [Fact]
+        public async Task RaisesIsOpenChangedEvent()
+        {
+            await TestHost.SwitchToAppThread();
+
+            var window = await WindowHelpers.CreateInvisibleWindowAsync<FlyoutWindow>();
+
+            bool eventRaised = false;
+
+            window.RightFlyout.IsOpenChanged += (sender, args) =>
+            {
+                eventRaised = true;
+            };
+
+            window.RightFlyout.IsOpen = true;
+
+            Assert.True(eventRaised);
         }
 
         public class ColorTest
