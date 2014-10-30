@@ -20,6 +20,7 @@ namespace MahApps.Metro.Controls
     {
         public static readonly DependencyProperty IsMonitoringProperty = DependencyProperty.RegisterAttached("IsMonitoring", typeof(bool), typeof(TextboxHelper), new UIPropertyMetadata(false, OnIsMonitoringChanged));
         public static readonly DependencyProperty WatermarkProperty = DependencyProperty.RegisterAttached("Watermark", typeof(string), typeof(TextboxHelper), new UIPropertyMetadata(string.Empty));
+        public static readonly DependencyProperty UseFloatingWatermarkProperty = DependencyProperty.RegisterAttached("UseFloatingWatermark", typeof(bool), typeof(TextboxHelper), new FrameworkPropertyMetadata(false, ButtonCommandOrClearTextChanged));
         public static readonly DependencyProperty TextLengthProperty = DependencyProperty.RegisterAttached("TextLength", typeof(int), typeof(TextboxHelper), new UIPropertyMetadata(0));
         public static readonly DependencyProperty ClearTextButtonProperty = DependencyProperty.RegisterAttached("ClearTextButton", typeof(bool), typeof(TextboxHelper), new FrameworkPropertyMetadata(false, ButtonCommandOrClearTextChanged));
         
@@ -31,9 +32,6 @@ namespace MahApps.Metro.Controls
         
         public static readonly DependencyProperty SelectAllOnFocusProperty = DependencyProperty.RegisterAttached("SelectAllOnFocus", typeof(bool), typeof(TextboxHelper), new FrameworkPropertyMetadata(false));
         public static readonly DependencyProperty IsWaitingForDataProperty = DependencyProperty.RegisterAttached("IsWaitingForData", typeof(bool), typeof(TextboxHelper), new UIPropertyMetadata(false));
-
-        public static readonly DependencyProperty FocusBorderBrushProperty = DependencyProperty.RegisterAttached("FocusBorderBrush", typeof(Brush), typeof(TextboxHelper), new FrameworkPropertyMetadata(Brushes.Transparent, FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
-        public static readonly DependencyProperty MouseOverBorderBrushProperty = DependencyProperty.RegisterAttached("MouseOverBorderBrush", typeof(Brush), typeof(TextboxHelper), new FrameworkPropertyMetadata(Brushes.Transparent, FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         private static readonly DependencyProperty HasTextProperty = DependencyProperty.RegisterAttached("HasText", typeof(bool), typeof(TextboxHelper), new FrameworkPropertyMetadata(false));
 
@@ -141,38 +139,6 @@ namespace MahApps.Metro.Controls
             return defaultMenu;
         }
 
-        /// <summary>
-        /// Sets the brush used to draw the focus border.
-        /// </summary>
-        public static void SetFocusBorderBrush(DependencyObject obj, Brush value)
-        {
-          obj.SetValue(FocusBorderBrushProperty, value);
-        }
-
-        /// <summary>
-        /// Gets the brush used to draw the focus border.
-        /// </summary>
-        public static Brush GetFocusBorderBrush(DependencyObject obj)
-        {
-          return (Brush)obj.GetValue(FocusBorderBrushProperty);
-        }
-
-        /// <summary>
-        /// Sets the brush used to draw the mouse over brush.
-        /// </summary>
-        public static void SetMouseOverBorderBrush(DependencyObject obj, Brush value)
-        {
-          obj.SetValue(MouseOverBorderBrushProperty, value);
-        }
-
-        /// <summary>
-        /// Gets the brush used to draw the mouse over brush.
-        /// </summary>
-        public static Brush GetMouseOverBorderBrush(DependencyObject obj)
-        {
-          return (Brush)obj.GetValue(MouseOverBorderBrushProperty);
-        }
-
         public static void SetIsWaitingForData(DependencyObject obj, bool value)
         {
             obj.SetValue(IsWaitingForDataProperty, value);
@@ -208,6 +174,16 @@ namespace MahApps.Metro.Controls
             obj.SetValue(WatermarkProperty, value);
         }
 
+        public static bool GetUseFloatingWatermark(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(UseFloatingWatermarkProperty);
+        }
+
+        public static void SetUseFloatingWatermark(DependencyObject obj, bool value)
+        {
+            obj.SetValue(UseFloatingWatermarkProperty, value);
+        }
+
         private static void SetTextLength(DependencyObject obj, int value)
         {
             obj.SetValue(TextLengthProperty, value);
@@ -237,6 +213,9 @@ namespace MahApps.Metro.Controls
                 {
                     txtBox.TextChanged += TextChanged;
                     txtBox.GotFocus += TextBoxGotFocus;
+
+                    txtBox.Dispatcher.BeginInvoke((Action)(() => 
+                        TextChanged(txtBox, new TextChangedEventArgs(TextBox.TextChangedEvent, UndoAction.None))));
                 }
                 else
                 {
@@ -253,10 +232,9 @@ namespace MahApps.Metro.Controls
                     passBox.PasswordChanged += PasswordChanged;
                     passBox.GotFocus += PasswordGotFocus;
 
-                    // issue 1343: the watermark exists if the password was set in xaml (binding etc)
-                    var pw = passBox.Password;
-                    passBox.Clear();
-                    passBox.Password = pw;
+                    // Also fixes 1343, also triggers the show of the floating watermark if necessary
+                    passBox.Dispatcher.BeginInvoke((Action)(() =>
+                        PasswordChanged(passBox, new RoutedEventArgs(PasswordBox.PasswordChangedEvent, passBox))));
                 }
                 else
                 {

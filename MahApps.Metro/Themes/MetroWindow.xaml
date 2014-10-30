@@ -262,7 +262,7 @@
             </Setter.Value>
         </Setter>
         <Setter Property="TitleForeground"
-                Value="White" />
+                Value="{DynamicResource IdealForegroundColorBrush}" />
         <Setter Property="Template"
                 Value="{StaticResource WindowTemplateKey}" />
         <Setter Property="TitleTemplate">
@@ -325,6 +325,8 @@
                     <ControlTemplate.Resources>
                         <ResourceDictionary>
                             <Style TargetType="{x:Type Button}">
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource BlackBrush}"/>
                                 <Setter Property="Background"
                                         Value="{DynamicResource TransparentWhiteBrush}" />
                                 <Setter Property="HorizontalContentAlignment"
@@ -376,7 +378,7 @@
                                                 <Trigger Property="IsEnabled"
                                                          Value="false">
                                                     <Setter Property="Foreground"
-                                                            Value="#ADADAD" />
+                                                            Value="{DynamicResource GrayBrush4}" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -386,12 +388,14 @@
                                     <DataTrigger Binding="{Binding ShowTitleBar, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                                                  Value="True">
                                         <Setter Property="Foreground"
-                                                Value="White" />
+                                                Value="{DynamicResource IdealForegroundColorBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                             <Style TargetType="{x:Type ToggleButton}">
                                 <!--Modified version of spiritdead's code-->
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource BlackBrush}" />
                                 <Setter Property="Background"
                                         Value="{DynamicResource TransparentWhiteBrush}" />
                                 <Setter Property="HorizontalContentAlignment"
@@ -443,12 +447,12 @@
                                                 <Trigger Property="IsEnabled"
                                                          Value="false">
                                                     <Setter Property="Foreground"
-                                                            Value="#ADADAD" />
+                                                            Value="{DynamicResource GrayBrush4}" />
                                                 </Trigger>
                                                 <DataTrigger Binding="{Binding ShowTitleBar, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                                                              Value="True">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="{DynamicResource IdealForegroundColorBrush}" />
                                                 </DataTrigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -460,7 +464,8 @@
 
                     <ItemsControl IsTabStop="False"
                                   Height="{Binding TitlebarHeight, RelativeSource={RelativeSource AncestorType=Controls:MetroWindow}}"
-                                  ItemsSource="{Binding Items, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:WindowCommands}}}">
+                                  ItemsSource="{Binding Items, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:WindowCommands}}}"
+                                  ItemTemplate="{TemplateBinding ItemTemplate}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal" />
@@ -474,7 +479,7 @@
             <DataTrigger Binding="{Binding ShowTitleBar, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                          Value="True">
                 <Setter Property="Foreground"
-                        Value="White" />
+                        Value="{DynamicResource IdealForegroundColorBrush}" />
             </DataTrigger>
             <DataTrigger Binding="{Binding ShowTitleBar, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                          Value="False">
@@ -569,7 +574,7 @@
             <DataTrigger Binding="{Binding ShowTitleBar, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                          Value="True">
                 <Setter Property="Foreground"
-                        Value="White" />
+                        Value="{DynamicResource IdealForegroundColorBrush}" />
             </DataTrigger>
             <DataTrigger Binding="{Binding ShowTitleBar, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                          Value="False">
