@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,8 +9,6 @@ namespace MahApps.Metro.Controls.Dialogs
 {
     public static class DialogManager
     {
-        #region In-Window Extension Methods
-
         /// <summary>
         /// Creates a LoginDialog inside of the current window.
         /// </summary>
@@ -300,13 +294,13 @@ namespace MahApps.Metro.Controls.Dialogs
         /// <param name="dialog">The dialog instance itself.</param>
         /// <returns>A task representing the operation.</returns>
         /// <exception cref="InvalidOperationException">The <paramref name="dialog"/> is already visible in the window.</exception>
-        public static Task ShowMetroDialogAsync(this MetroWindow window, BaseMetroDialog dialog)
+        public static Task ShowMetroDialogAsync(this MetroWindow window, BaseMetroDialog dialog, MetroDialogSettings settings = null)
         {
             window.Dispatcher.VerifyAccess();
             if (window.metroDialogContainer.Children.Contains(dialog))
                 throw new InvalidOperationException("The provided dialog is already visible in the specified window.");
 
-            return window.ShowOverlayAsync().ContinueWith(z =>
+            return HandleOverlayOnShow(settings,window).ContinueWith(z =>
             {
                 dialog.Dispatcher.Invoke(new Action(() =>
                 {
@@ -334,7 +328,7 @@ namespace MahApps.Metro.Controls.Dialogs
         /// The <paramref name="dialog"/> is not visible in the window.
         /// This happens if <see cref="ShowMetroDialogAsync"/> hasn't been called before.
         /// </exception>
-        public static Task HideMetroDialogAsync(this MetroWindow window, BaseMetroDialog dialog)
+        public static Task HideMetroDialogAsync(this MetroWindow window, BaseMetroDialog dialog, MetroDialogSettings settings = null)
         {
             window.Dispatcher.VerifyAccess();
             if (!window.metroDialogContainer.Children.Contains(dialog))
@@ -356,7 +350,7 @@ namespace MahApps.Metro.Controls.Dialogs
                 {
                     window.metroDialogContainer.Children.Remove(dialog); //remove the dialog from the container
 
-                    return window.HideOverlayAsync();
+                    return HandleOverlayOnHide(settings,window);
                 }));
             }).Unwrap();
         }
@@ -381,9 +375,7 @@ namespace MahApps.Metro.Controls.Dialogs
 
             return sizeHandler;
         }
-        #endregion
 
-        #region External Windowed Dialog Methods
         public static BaseMetroDialog ShowDialogExternally(this BaseMetroDialog dialog)
         {
             Window win = SetupExternalDialogWindow(dialog);
@@ -448,11 +440,8 @@ namespace MahApps.Metro.Controls.Dialogs
 
             return win;
         }
-        #endregion
 
-        public delegate void DialogStateChangedHandler(object sender, DialogStateChangedEventArgs args);
-
-        public static event DialogStateChangedHandler DialogOpened;
-        public static event DialogStateChangedHandler DialogClosed;
+        public static event EventHandler<DialogStateChangedEventArgs> DialogOpened;
+        public static event EventHandler<DialogStateChangedEventArgs> DialogClosed;
     }
 }
