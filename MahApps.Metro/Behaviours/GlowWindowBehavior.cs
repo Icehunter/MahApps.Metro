@@ -8,10 +8,9 @@ namespace MahApps.Metro.Behaviours
 {
     public class GlowWindowBehavior : Behavior<Window>
     {
-        private const int glowTimerDelay = 200; //200 ms delay, the same as VS2013
+        private static readonly TimeSpan GlowTimerDelay = TimeSpan.FromMilliseconds(200); //200 ms delay, the same as VS2013
         private GlowWindow left, right, top, bottom;
         private DispatcherTimer makeGlowVisibleTimer;
-        private bool _PrevTopmost;
         
         protected override void OnAttached()
         {
@@ -19,30 +18,25 @@ namespace MahApps.Metro.Behaviours
 
             this.AssociatedObject.Loaded += AssociatedObjectOnLoaded;
             this.AssociatedObject.Unloaded += AssociatedObjectUnloaded;
-            this.AssociatedObject.StateChanged += AssociatedObjectStateChanged;
         }
 
         void AssociatedObjectStateChanged(object sender, EventArgs e)
         {
-            if (AssociatedObject.WindowState == WindowState.Minimized)
+            if (makeGlowVisibleTimer != null)
             {
-                _PrevTopmost = AssociatedObject.Topmost;
-                AssociatedObject.Topmost = true;
+                makeGlowVisibleTimer.Stop();
             }
-            else
-            {
-                AssociatedObject.Topmost = _PrevTopmost;
-            }
-            makeGlowVisibleTimer.Stop();
             if(AssociatedObject.WindowState != WindowState.Minimized)
             {
-                if(AssociatedObject.WindowStyle == WindowStyle.None || !SystemParameters.MinimizeAnimation)
+                var metroWindow = this.AssociatedObject as MetroWindow;
+                var ignoreTaskBar = metroWindow != null && metroWindow.IgnoreTaskbarOnMaximize;
+                if (makeGlowVisibleTimer != null && SystemParameters.MinimizeAnimation && !ignoreTaskBar)
                 {
-                    RestoreGlow();
+                    makeGlowVisibleTimer.Start();
                 }
                 else
                 {
-                    makeGlowVisibleTimer.Start();
+                    RestoreGlow();
                 }
             }
             else
@@ -90,20 +84,20 @@ namespace MahApps.Metro.Behaviours
 
         private void AssociatedObjectOnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
-            if(makeGlowVisibleTimer == null)
-            {
-                makeGlowVisibleTimer = new DispatcherTimer()
-                {
-                    Interval = TimeSpan.FromMilliseconds(glowTimerDelay)
-                };
-                makeGlowVisibleTimer.Tick += makeGlowVisibleTimer_Tick;
-            }
-
             // No glow effect if UseNoneWindowStyle is true or GlowBrush not set.
             var metroWindow = this.AssociatedObject as MetroWindow;
             if (metroWindow != null && (metroWindow.UseNoneWindowStyle || metroWindow.GlowBrush == null))
             {
                 return;
+            }
+
+            this.AssociatedObject.StateChanged -= AssociatedObjectStateChanged;
+            this.AssociatedObject.StateChanged += AssociatedObjectStateChanged;
+
+            if (makeGlowVisibleTimer == null)
+            {
+                makeGlowVisibleTimer = new DispatcherTimer { Interval = GlowTimerDelay };
+                makeGlowVisibleTimer.Tick += makeGlowVisibleTimer_Tick;
             }
 
             this.left = new GlowWindow(this.AssociatedObject, GlowDirection.Left);

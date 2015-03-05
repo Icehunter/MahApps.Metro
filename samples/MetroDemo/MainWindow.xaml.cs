@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using MetroDemo.ExampleWindows;
@@ -11,12 +13,60 @@ namespace MetroDemo
     {
         private bool _shutdown;
         private readonly MainWindowViewModel _viewModel;
+        private FlyoutDemo flyoutDemo;
 
         public MainWindow()
         {
             _viewModel = new MainWindowViewModel();
             DataContext = _viewModel;
+            
             InitializeComponent();
+
+            flyoutDemo = new FlyoutDemo();
+            flyoutDemo.ApplyTemplate();
+            flyoutDemo.Closed += (o, e) => flyoutDemo = null;
+
+            Closing += (s, e) =>
+                {
+                    if (!e.Cancel && flyoutDemo != null)
+                    {
+                        flyoutDemo.Dispose();
+                    }
+                };
+        }
+
+        public static readonly DependencyProperty ToggleFullScreenProperty =
+            DependencyProperty.Register("ToggleFullScreen",
+                                        typeof(bool),
+                                        typeof(MainWindow),
+                                        new PropertyMetadata(default(bool), ToggleFullScreenPropertyChangedCallback));
+
+        private static void ToggleFullScreenPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+        {
+            var metroWindow = (MetroWindow)dependencyObject;
+            if (e.OldValue != e.NewValue)
+            {
+                var fullScreen = (bool)e.NewValue;
+                if (fullScreen)
+                {
+                    metroWindow.UseNoneWindowStyle = true;
+                    metroWindow.IgnoreTaskbarOnMaximize = true;
+                    metroWindow.WindowState = WindowState.Maximized;
+                }
+                else
+                {
+                    metroWindow.UseNoneWindowStyle = false;
+                    metroWindow.ShowTitleBar = true; // <-- this must be set to true
+                    metroWindow.IgnoreTaskbarOnMaximize = false;
+                    metroWindow.WindowState = WindowState.Normal;
+                }
+            }
+        }
+
+        public bool ToggleFullScreen
+        {
+            get { return (bool)GetValue(ToggleFullScreenProperty); }
+            set { SetValue(ToggleFullScreenProperty, value); }
         }
 
         private void LaunchMahAppsOnGitHub(object sender, RoutedEventArgs e)
@@ -34,7 +84,6 @@ namespace MetroDemo
             new VSDemo().Show();
         }
 
-        private Window flyoutDemo;
         private void LaunchFlyoutDemo(object sender, RoutedEventArgs e)
         {
             if (flyoutDemo == null)
@@ -42,10 +91,7 @@ namespace MetroDemo
                 flyoutDemo = new FlyoutDemo();
                 flyoutDemo.Closed += (o, args) => flyoutDemo = null;
             }
-            if (flyoutDemo.IsVisible)
-                flyoutDemo.Hide();
-            else
-                flyoutDemo.Show();
+            flyoutDemo.Launch();
         }
 
         private void LaunchIcons(object sender, RoutedEventArgs e)
@@ -69,7 +115,7 @@ namespace MetroDemo
 
         private void LaunchRibbonDemo(object sender, RoutedEventArgs e)
         {
-#if NET_4_5
+#if NET4_5
             //new RibbonDemo().Show();
 #else
             MessageBox.Show("Ribbon is only supported on .NET 4.5 or higher.");
@@ -78,7 +124,7 @@ namespace MetroDemo
 
         private async void ShowDialogOutside(object sender, RoutedEventArgs e)
         {
-            var dialog = (BaseMetroDialog)this.Resources["SimpleDialogTest"];
+            var dialog = (BaseMetroDialog)this.Resources["CustomDialogTest"];
             dialog = dialog.ShowDialogExternally();
 
             await TaskEx.Delay(5000);
@@ -100,7 +146,7 @@ namespace MetroDemo
                 ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme
             };
 
-            MessageDialogResult result = await this.ShowMessageAsync("Hello!", "Welcome to the world of metro! ",
+            MessageDialogResult result = await this.ShowMessageAsync("Hello!", "Welcome to the world of metro!",
                 MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, mySettings);
 
             if (result != MessageDialogResult.FirstAuxiliary)
@@ -108,11 +154,31 @@ namespace MetroDemo
                     Environment.NewLine + Environment.NewLine + "This dialog will follow the Use Accent setting."));
         }
 
-        private async void ShowSimpleDialog(object sender, RoutedEventArgs e)
+
+        private async void ShowLimitedMessageDialog(object sender, RoutedEventArgs e)
+        {
+            var mySettings = new MetroDialogSettings()
+            {
+                AffirmativeButtonText = "Hi",
+                NegativeButtonText = "Go away!",
+                FirstAuxiliaryButtonText = "Cancel",
+                MaximumBodyHeight = 100,
+                ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme
+            };
+
+            MessageDialogResult result = await this.ShowMessageAsync("Hello!", "Welcome to the world of metro!" + string.Join(Environment.NewLine, "abc","def","ghi", "jkl","mno","pqr","stu","vwx","yz"),
+                MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, mySettings);
+
+            if (result != MessageDialogResult.FirstAuxiliary)
+                await this.ShowMessageAsync("Result", "You said: " + (result == MessageDialogResult.Affirmative ? mySettings.AffirmativeButtonText : mySettings.NegativeButtonText +
+                    Environment.NewLine + Environment.NewLine + "This dialog will follow the Use Accent setting."));
+        }
+
+        private async void ShowCustomDialog(object sender, RoutedEventArgs e)
         {
             this.MetroDialogOptions.ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme;
 
-            var dialog = (BaseMetroDialog)this.Resources["SimpleDialogTest"];
+            var dialog = (BaseMetroDialog)this.Resources["CustomDialogTest"];
 
             await this.ShowMetroDialogAsync(dialog);
 
@@ -225,9 +291,45 @@ namespace MetroDemo
                 Application.Current.Shutdown();
         }
 
-        private void IgnoreTaskBar_Click(object sender, RoutedEventArgs e)
+        private MetroWindow testWindow;
+
+        private MetroWindow GetTestWindow()
         {
-            this.IgnoreTaskbarOnMaximize = !this.IgnoreTaskbarOnMaximize;
+            if (testWindow != null) {
+                testWindow.Close();
+            }
+            testWindow = new MetroWindow() { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner, Title = "Another Test...", Width = 500, Height = 300 };
+            testWindow.Closed += (o, args) => testWindow = null;
+            return testWindow;
+        }
+
+        private void MenuWindowWithBorderOnClick(object sender, RoutedEventArgs e)
+        {
+            var w = this.GetTestWindow();
+            w.Content = new TextBlock() { Text = "MetroWindow with a Border", FontSize = 28, FontWeight = FontWeights.Light, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            w.BorderThickness = new Thickness(1);
+            w.GlowBrush = null;
+            w.BorderBrush = this.FindResource("AccentColorBrush") as Brush;
+            w.Show();
+        }
+
+        private void MenuWindowWithGlowOnClick(object sender, RoutedEventArgs e)
+        {
+            var w = this.GetTestWindow();
+            w.Content = new TextBlock() { Text = "MetroWindow with a Glow", FontSize = 28, FontWeight = FontWeights.Light, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            w.BorderThickness = new Thickness(1);
+            w.BorderBrush = null;
+            w.GlowBrush = this.FindResource("AccentColorBrush") as SolidColorBrush;
+            w.Show();
+        }
+
+        private void MenuWindowWithShadowOnClick(object sender, RoutedEventArgs e)
+        {
+            var w = this.GetTestWindow();
+            w.Content = new TextBlock() { Text = "MetroWindow with a Glow", FontSize = 28, FontWeight = FontWeights.Light, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            // use this to test the obsolete under the hood code
+            w.EnableDWMDropShadow = true;
+            w.Show();
         }
     }
 }

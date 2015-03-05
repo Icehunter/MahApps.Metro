@@ -12,13 +12,15 @@
     <Style TargetType="{x:Type Controls:NumericUpDown}">
         <Setter Property="BorderThickness"
                 Value="1" />
+        <Setter Property="SnapsToDevicePixels"
+                Value="true" />
         <Setter Property="Foreground"
                 Value="{DynamicResource TextBrush}" />
         <Setter Property="BorderBrush"
                 Value="{DynamicResource TextBoxBorderBrush}" />
-        <Setter Property="Controls:TextboxHelper.FocusBorderBrush"
+        <Setter Property="Controls:ControlsHelper.FocusBorderBrush"
                 Value="{DynamicResource TextBoxFocusBorderBrush}" />
-        <Setter Property="Controls:TextboxHelper.MouseOverBorderBrush"
+        <Setter Property="Controls:ControlsHelper.MouseOverBorderBrush"
                 Value="{DynamicResource TextBoxMouseOverBorderBrush}" />
         <Setter Property="VerticalAlignment"
                 Value="Center" />
@@ -26,7 +28,7 @@
                 Value="{DynamicResource ContentFontFamily}" />
         <Setter Property="FontSize"
                 Value="{DynamicResource ContentFontSize}" />
-        <Setter Property="Controls:TextboxHelper.IsMonitoring"
+        <Setter Property="Controls:TextBoxHelper.IsMonitoring"
                 Value="True" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
                 Value="Auto" />
@@ -40,6 +42,8 @@
                 Value="{DynamicResource ControlBackgroundBrush}" />
         <Setter Property="Validation.ErrorTemplate"
                 Value="{DynamicResource ValidationErrorTemplate}" />
+        <Setter Property="Focusable"
+                Value="False" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Controls:NumericUpDown}">
@@ -49,13 +53,11 @@
                           Margin="{TemplateBinding Padding}"
                           VerticalAlignment="{TemplateBinding VerticalAlignment}"
                           Background="{TemplateBinding Background}">
-                        <Rectangle x:Name="Base"
-                                   Stroke="{TemplateBinding BorderBrush}"
-                                   StrokeThickness="{TemplateBinding BorderThickness, Converter={StaticResource ThicknessToDoubleConverter}}"
-                                   Fill="{TemplateBinding Background}" />
-                        <Rectangle x:Name="FocusRectangle"
-                                   Visibility="Collapsed"
-                                   StrokeThickness="{TemplateBinding BorderThickness, Converter={StaticResource ThicknessToDoubleConverter}}" />
+                        <Border x:Name="Base"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}" />
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
@@ -81,8 +83,8 @@
                                      IsReadOnly="{TemplateBinding IsReadOnly}"
                                      FontFamily="{TemplateBinding FontFamily}"
                                      FontSize="{TemplateBinding FontSize}"
-                                     Controls:TextboxHelper.ClearTextButton="{TemplateBinding Controls:TextboxHelper.ClearTextButton}"
-                                     Controls:TextboxHelper.Watermark="{TemplateBinding Controls:TextboxHelper.Watermark}" />
+                                     Controls:TextBoxHelper.ClearTextButton="{TemplateBinding Controls:TextBoxHelper.ClearTextButton}"
+                                     Controls:TextBoxHelper.Watermark="{TemplateBinding Controls:TextBoxHelper.Watermark}" />
                             <RepeatButton x:Name="PART_NumericUp"
                                           Grid.Column="1"
                                           Margin="2,2,0,2"
@@ -166,31 +168,16 @@
                         </Trigger>
                         <Trigger Property="IsMouseOver"
                                  Value="true">
-                            <Setter TargetName="FocusRectangle"
-                                    Property="Visibility"
-                                    Value="Visible" />
-                            <Setter TargetName="FocusRectangle"
-                                    Property="Stroke"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Controls:TextboxHelper.MouseOverBorderBrush)}" />
+                            <Setter TargetName="Base"
+                                    Property="BorderBrush"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Controls:ControlsHelper.MouseOverBorderBrush)}" />
                         </Trigger>
                         <Trigger Property="IsFocused"
                                  Value="true"
                                  SourceName="PART_TextBox">
-                            <Setter TargetName="FocusRectangle"
-                                    Property="Visibility"
-                                    Value="Visible" />
-                            <Setter TargetName="FocusRectangle"
-                                    Property="Stroke"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Controls:TextboxHelper.FocusBorderBrush)}" />
-                        </Trigger>
-                        <Trigger Property="IsFocused"
-                                 Value="true">
-                            <Setter TargetName="FocusRectangle"
-                                    Property="Visibility"
-                                    Value="Visible" />
-                            <Setter TargetName="FocusRectangle"
-                                    Property="Stroke"
-                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Controls:TextboxHelper.FocusBorderBrush)}" />
+                            <Setter TargetName="Base"
+                                    Property="BorderBrush"
+                                    Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Controls:ControlsHelper.FocusBorderBrush)}" />
                         </Trigger>
 
                         <Trigger Property="HideUpDownButtons"

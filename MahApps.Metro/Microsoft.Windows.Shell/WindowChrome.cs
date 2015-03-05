@@ -11,7 +11,7 @@ namespace Microsoft.Windows.Shell
     using System.Windows.Data;
     using Standard;
 
-    public enum ResizeGripDirection
+    internal enum ResizeGripDirection
     {
         None,
         TopLeft,
@@ -26,7 +26,7 @@ namespace Microsoft.Windows.Shell
     }
 
     [Flags]
-    public enum SacrificialEdge
+    internal enum SacrificialEdge
     {
         None = 0,
         Left = 1,
@@ -41,7 +41,7 @@ namespace Microsoft.Windows.Shell
         // All = Left | Top | Right | Bottom,
     }
 
-    public class WindowChrome : Freezable
+    internal class WindowChrome : Freezable
     {
         private struct _SystemParameterBoundProperty
         {
@@ -246,12 +246,24 @@ namespace Microsoft.Windows.Shell
             "IgnoreTaskbarOnMaximize",
             typeof(bool),
             typeof(WindowChrome),
-            new FrameworkPropertyMetadata(false));
+            new FrameworkPropertyMetadata(false, (d, e) => ((WindowChrome)d)._OnPropertyChangedThatRequiresRepaint()));
 
         public bool IgnoreTaskbarOnMaximize
         {
             get { return (bool)GetValue(IgnoreTaskbarOnMaximizeProperty); }
             set { SetValue(IgnoreTaskbarOnMaximizeProperty, value); }
+        }
+
+        public static readonly DependencyProperty UseNoneWindowStyleProperty = DependencyProperty.Register(
+            "UseNoneWindowStyle",
+            typeof(bool),
+            typeof(WindowChrome),
+            new FrameworkPropertyMetadata(false, (d, e) => ((WindowChrome)d)._OnPropertyChangedThatRequiresRepaint()));
+
+        public bool UseNoneWindowStyle
+        {
+            get { return (bool)GetValue(UseNoneWindowStyleProperty); }
+            set { SetValue(UseNoneWindowStyleProperty, value); }
         }
 
         public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register(

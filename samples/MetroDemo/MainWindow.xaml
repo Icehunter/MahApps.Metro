@@ -64,11 +64,11 @@
                         Value="{Binding Name, Mode=OneWay}" />
             </Style>
 
-            <Dialog:SimpleDialog x:Key="SimpleDialogTest"
+            <Dialog:CustomDialog x:Key="CustomDialogTest"
                                  Title="This dialog allows arbitrary content. It will close in 5 seconds."
-                                 x:Name="SimpleTestDialog">
+                                 x:Name="CustomTestDialog">
                 <TextBlock Height="30" Text="{Binding Artists[0].Name}" Foreground="{DynamicResource AccentBrush}" />
-            </Dialog:SimpleDialog>
+            </Dialog:CustomDialog>
 
         </ResourceDictionary>
     </Window.Resources>
@@ -152,15 +152,26 @@
                               Header="Show LoginDialog" />
                     <MenuItem Click="ShowMessageDialog"
                               Header="Show MessageDialog" />
+                    <MenuItem Click="ShowLimitedMessageDialog"
+                              Header="Show MessageDialog (Limited Size)" />
                     <MenuItem Click="ShowProgressDialog"
                               Header="Show ProgressDialog" />
-                    <MenuItem Click="ShowSimpleDialog"
-                              Header="Show SimpleDialog" />
+                    <MenuItem Click="ShowCustomDialog"
+                              Header="Show CustomDialog" />
                     <MenuItem Click="ShowDialogOutside"
-                              Header="Show SimpleDialog Externally" />
+                              Header="Show CustomDialog Externally" />
                 </MenuItem>
                 <MenuItem Header="Window">
-                    <MenuItem IsCheckable="True" Header="Ignore taskbar on maximize" Click="IgnoreTaskBar_Click"/>
+                    <MenuItem IsCheckable="True" Header="Topmost"
+                              IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}, Path=Topmost}" />
+                    <MenuItem IsCheckable="True" Header="Ignore taskbar on maximize"
+                              IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}, Path=IgnoreTaskbarOnMaximize}" />
+                    <MenuItem IsCheckable="True" Header="Toggle FullScreen (no taskbar, window style = none)"
+                              IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}, Path=ToggleFullScreen}" />
+                    <Separator />
+                    <MenuItem Header="Window with a Border" Click="MenuWindowWithBorderOnClick" />
+                    <MenuItem Header="Window with a Glow" Click="MenuWindowWithGlowOnClick" />
+                    <MenuItem Header="Window with drop shadow" Click="MenuWindowWithShadowOnClick" />
                 </MenuItem>
             </Menu>
 

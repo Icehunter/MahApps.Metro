@@ -31,6 +31,7 @@ namespace MahApps.Metro.Controls
 
             this.IsGlowing = true;
             this.AllowsTransparency = true;
+            this.Closing += (sender, e) => e.Cancel = !closing;
 
             this.Owner = owner;
             glow.Visibility = Visibility.Collapsed;
@@ -42,6 +43,10 @@ namespace MahApps.Metro.Controls
             b = new Binding("NonActiveGlowBrush");
             b.Source = owner;
             glow.SetBinding(Glow.NonActiveGlowBrushProperty, b);
+
+            b = new Binding("BorderThickness");
+            b.Source = owner;
+            glow.SetBinding(Glow.BorderThicknessProperty, b);
 
             switch (direction)
             {
@@ -206,6 +211,7 @@ namespace MahApps.Metro.Controls
             //ws |= WS.POPUP;
             wsex ^= WSEX.APPWINDOW;
             wsex |= WSEX.NOACTIVATE;
+            wsex |= WSEX.TRANSPARENT;
 
             source.Handle.SetWindowLong(ws);
             source.Handle.SetWindowLongEx(wsex);
@@ -227,6 +233,7 @@ namespace MahApps.Metro.Controls
                 if (this.closing) return;
 
                 Visibility = IsGlowing ? Visibility.Visible : Visibility.Collapsed;
+                glow.Visibility = IsGlowing ? Visibility.Visible : Visibility.Collapsed;
 
                 UpdateCore();
             }

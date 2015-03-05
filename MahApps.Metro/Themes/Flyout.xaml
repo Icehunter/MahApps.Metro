@@ -6,6 +6,7 @@
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <DataTemplate x:Key="HeaderTemplate"
@@ -18,6 +19,7 @@
                     Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Controls:Flyout}}, Path=CloseCommand, Mode=OneWay}"
                     DockPanel.Dock="Left"
                     Style="{DynamicResource MetroCircleButtonStyle}"
+                    Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:Flyout}}, Path=CloseButtonVisibility}"
                     Height="40"
                     Width="40"
                     FontFamily="Segoe UI Symbol"
@@ -55,7 +57,8 @@
             </Button>
             <TextBlock Text="{Binding}"
                        x:Name="PART_BackButton"
-                       FontSize="20"
+                       Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:Flyout}}, Path=TitleVisibility}"
+                       FontSize="{StaticResource FlyoutHeaderFontSize}"
                        Margin="15,0,0,0"
                        VerticalAlignment="Center" />
         </DockPanel>
@@ -124,8 +127,7 @@
                                 <SplineDoubleKeyFrame KeyTime="00:00:00.750"
                                                       KeySpline="0.25,1,0.05,1"
                                                       Value="0"
-                                                      x:Name="hideFrame">
-                                </SplineDoubleKeyFrame>
+                                                      x:Name="hideFrame" />
                             </DoubleAnimationUsingKeyFrames>
                             <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
                                                            Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
@@ -133,16 +135,15 @@
                                 <SplineDoubleKeyFrame KeyTime="00:00:00.750"
                                                       KeySpline="0.25,1,0.05,1"
                                                       Value="0"
-                                                      x:Name="hideFrameY">
-                                </SplineDoubleKeyFrame>
+                                                      x:Name="hideFrameY" />
                             </DoubleAnimationUsingKeyFrames>
                             <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
                                                            Storyboard.TargetProperty="(UIElement.Opacity)"
                                                            Storyboard.TargetName="root">
                                 <SplineDoubleKeyFrame KeyTime="00:00:00.750"
                                                       KeySpline="0.25,1,0.05,1"
-                                                      Value="1"
-                                                      x:Name="fadeOutFrame"/>
+                                                      Value="0"
+                                                      x:Name="fadeOutFrame" />
                             </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState>
@@ -154,8 +155,7 @@
                                 <SplineDoubleKeyFrame KeyTime="00:00:00.750"
                                                       KeySpline="0.25,1,0.05,1"
                                                       Value="0"
-                                                      x:Name="showFrame">
-                                </SplineDoubleKeyFrame>
+                                                      x:Name="showFrame" />
                             </DoubleAnimationUsingKeyFrames>
                             <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
                                                            Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
@@ -163,29 +163,74 @@
                                 <SplineDoubleKeyFrame KeyTime="00:00:00.750"
                                                       KeySpline="0.25,1,0.05,1"
                                                       Value="0"
-                                                      x:Name="showFrameY">
-                                </SplineDoubleKeyFrame>
+                                                      x:Name="showFrameY" />
                             </DoubleAnimationUsingKeyFrames>
                             <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
                                                            Storyboard.TargetProperty="(UIElement.Opacity)"
                                                            Storyboard.TargetName="root">
                                 <SplineDoubleKeyFrame KeyTime="00:00:00.750"
                                                       KeySpline="0.25,1,0.05,1"
-                                                      Value="1"/>
+                                                      Value="1" />
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="HideDirect">
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                           Storyboard.TargetName="root">
+                                <SplineDoubleKeyFrame KeyTime="0"
+                                                      Value="0" />
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                           Storyboard.TargetName="root">
+                                <SplineDoubleKeyFrame KeyTime="0"
+                                                      Value="0" />
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
+                                                           Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                           Storyboard.TargetName="root">
+                                <SplineDoubleKeyFrame KeyTime="0"
+                                                      Value="0" />
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="ShowDirect">
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                           Storyboard.TargetName="root">
+                                <SplineDoubleKeyFrame KeyTime="0"
+                                                      Value="0" />
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                           Storyboard.TargetName="root">
+                                <SplineDoubleKeyFrame KeyTime="0"
+                                                      Value="0" />
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00"
+                                                           Storyboard.TargetProperty="(UIElement.Opacity)"
+                                                           Storyboard.TargetName="root">
+                                <SplineDoubleKeyFrame KeyTime="0"
+                                                      Value="1" />
                             </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState>
                 </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
-            <DockPanel>
-                <ContentPresenter x:Name="PART_Header"
-                                  DockPanel.Dock="Top"
-                                  ContentSource="Header"
-                                  ContentTemplate="{TemplateBinding HeaderTemplate}" />
-                <ContentPresenter x:Name="PART_Content"
-                                  DockPanel.Dock="Bottom">
-                </ContentPresenter>
-            </DockPanel>
+            <AdornerDecorator>
+                <DockPanel FocusVisualStyle="{x:Null}"
+                           Focusable="False">
+                    <ContentPresenter x:Name="PART_Header"
+                                      DockPanel.Dock="Top"
+                                      ContentSource="Header"
+                                      ContentTemplate="{TemplateBinding HeaderTemplate}" />
+                    <ContentPresenter x:Name="PART_Content"
+                                      DockPanel.Dock="Bottom" />
+                </DockPanel>
+            </AdornerDecorator>
         </Grid>
         <ControlTemplate.Triggers>
             <DataTrigger Binding="{Binding Position, RelativeSource={RelativeSource Self}}"
@@ -212,7 +257,11 @@
     <Style TargetType="{x:Type Controls:Flyout}">
         <Setter Property="Visibility"
                 Value="Hidden" />
+        <Setter Property="KeyboardNavigation.ControlTabNavigation"
+                Value="Cycle" />
         <Setter Property="KeyboardNavigation.TabNavigation"
+                Value="Cycle" />
+        <Setter Property="KeyboardNavigation.DirectionalNavigation"
                 Value="Cycle" />
         <Setter Property="VerticalAlignment"
                 Value="Stretch" />
@@ -224,9 +273,9 @@
                 Value="{StaticResource FlyoutTemplate}" />
         <Setter Property="FocusVisualStyle"
                 Value="{x:Null}" />
-        <Setter Property="Foreground" 
+        <Setter Property="Foreground"
                 Value="{DynamicResource FlyoutForegroundBrush}" />
-        <Setter Property="Background" 
+        <Setter Property="Background"
                 Value="{DynamicResource FlyoutBackgroundBrush}" />
     </Style>
 </ResourceDictionary>

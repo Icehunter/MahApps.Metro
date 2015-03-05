@@ -43,7 +43,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <IntermediateOutputPath>obj\NET4\Debug\</IntermediateOutputPath>
-    <DefineConstants>TRACE;DEBUG;NET_4</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MahApps.Metro.XML</DocumentationFile>
@@ -54,7 +54,7 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <IntermediateOutputPath>obj\NET4\Release\</IntermediateOutputPath>
-    <DefineConstants>TRACE;NET_4</DefineConstants>
+    <DefineConstants>TRACE;NET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\MahApps.Metro.XML</DocumentationFile>
@@ -89,8 +89,6 @@
     <Compile Include="Behaviours\StylizedBehaviorCollection.cs" />
     <Compile Include="Behaviours\WindowsSettingBehaviour.cs" />
     <Compile Include="Controls\ClosingWindowEventHandlerArgs.cs" />
-    <Compile Include="Controls\ComboBoxHelper.cs" />
-    <Compile Include="Controls\ControlsHelper.cs" />
     <Compile Include="Controls\CustomValidationPopup.cs" />
     <Compile Include="Controls\DataGridNumericUpDownColumn.cs" />
     <Compile Include="Controls\Dialogs\BaseMetroDialog.cs" />
@@ -100,7 +98,7 @@
     <Compile Include="Controls\Dialogs\LoginDialog.cs" />
     <Compile Include="Controls\Dialogs\ProgressDialog.cs" />
     <Compile Include="Controls\Dialogs\ProgressDialogController.cs" />
-    <Compile Include="Controls\Dialogs\SimpleDialog.cs" />
+    <Compile Include="Controls\Dialogs\CustomDialog.cs" />
     <Compile Include="Controls\DropDownButton.cs" />
     <Compile Include="Controls\FlipView.cs" />
     <Compile Include="Controls\Flyout.cs" />
@@ -112,6 +110,16 @@
       <DependentUpon>GlowWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Dialogs\MessageDialog.cs" />
+    <Compile Include="Controls\Helper\ButtonHelper.cs" />
+    <Compile Include="Controls\Helper\ComboBoxHelper.cs" />
+    <Compile Include="Controls\Helper\ControlsHelper.cs" />
+    <Compile Include="Controls\Helper\DataGridCellHelper.cs" />
+    <Compile Include="Controls\Helper\GroupBoxHelper.cs" />
+    <Compile Include="Controls\Helper\PasswordBoxHelper.cs" />
+    <Compile Include="Controls\Helper\ScrollBarHelper.cs" />
+    <Compile Include="Controls\Helper\TabControlHelper.cs" />
+    <Compile Include="Controls\Helper\TextBoxHelper.cs" />
+    <Compile Include="Controls\Helper\ToggleButtonHelper.cs" />
     <Compile Include="Controls\LayoutInvalidationCatcher.cs" />
     <Compile Include="Controls\MetroAnimatedSingleRowTabControl.cs" />
     <Compile Include="Controls\MetroAnimatedTabControl.cs" />
@@ -120,12 +128,14 @@
     <Compile Include="Controls\MetroTabControl.cs" />
     <Compile Include="Controls\MetroTabItem.cs" />
     <Compile Include="Controls\MetroWindowHelpers.cs" />
+    <Compile Include="Controls\MultiFrameImage.cs" />
     <Compile Include="Controls\NumericUpDown.cs" />
     <Compile Include="Controls\NumericUpDownChangedRoutedEventArgs.cs" />
     <Compile Include="Controls\NumericUpDownChangedRoutedEventHandler.cs" />
     <Compile Include="Controls\Pivot.cs" />
     <Compile Include="Controls\PivotItem.cs" />
     <Compile Include="Controls\Position.cs" />
+    <Compile Include="Controls\PropertyChangeNotifier.cs" />
     <Compile Include="Controls\RangeParameterChangedEventArgs.cs" />
     <Compile Include="Controls\SafeRaise.cs" />
     <Compile Include="Controls\ScrollViewerOffsetMediator.cs" />
@@ -144,7 +154,6 @@
     <Compile Include="Controls\ProgressRing.cs" />
     <Compile Include="Controls\RangeSelectionChangedEventArgs.cs" />
     <Compile Include="Controls\RangeSlider.cs" />
-    <Compile Include="Controls\TextboxHelper.cs" />
     <Compile Include="Controls\ToggleSwitchButton.cs" />
     <Compile Include="Controls\TransitioningContentControl.cs" />
     <Compile Include="Controls\TreeHelper.cs" />
@@ -179,6 +188,7 @@
     <Compile Include="Native\ABEdge.cs" />
     <Compile Include="Native\ABMsg.cs" />
     <Compile Include="Native\APPBARDATA.cs" />
+    <Compile Include="Native\SafeLibraryHandle.cs" />
     <Compile Include="Native\WINDOWPLACEMENT.cs" />
     <Compile Include="Controls\WindowSettings.cs" />
     <Compile Include="Native\Constants.cs" />
@@ -407,6 +417,10 @@
     <Page Include="Styles\FlatSlider.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\Shared.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Styles\Sizes.xaml">
       <SubType>Designer</SubType>

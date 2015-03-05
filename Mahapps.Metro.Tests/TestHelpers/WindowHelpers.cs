@@ -7,17 +7,23 @@ using System.Windows.Media;
 using MahApps.Metro.Controls;
 using Xunit;
 
-namespace Mahapps.Metro.Tests.TestHelpers
+namespace MahApps.Metro.Tests.TestHelpers
 {
     public static class WindowHelpers
     {
-        public static Task<T> CreateInvisibleWindowAsync<T>() where T : Window, new()
+        public static Task<T> CreateInvisibleWindowAsync<T>(Action<T> changeAddiotionalProperties = null) where T : Window, new()
         {
             var window = new T
             {
                 Visibility = Visibility.Hidden, 
                 ShowInTaskbar = false
             };
+
+            var changePropertiesAction = changeAddiotionalProperties;
+            if (changePropertiesAction != null)
+            {
+                changePropertiesAction(window);
+            }
 
             var completionSource = new TaskCompletionSource<T>();
 

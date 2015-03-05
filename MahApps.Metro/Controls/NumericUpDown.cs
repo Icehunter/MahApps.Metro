@@ -125,14 +125,6 @@ namespace MahApps.Metro.Controls
             HorizontalContentAlignmentProperty.OverrideMetadata(typeof(NumericUpDown), new FrameworkPropertyMetadata(HorizontalAlignment.Right));
         }
 
-        ~NumericUpDown()
-        {
-            if (_valueTextBox != null)
-            {
-                DataObject.RemovePastingHandler(_valueTextBox, OnValueTextBoxPaste);
-            }
-        }
-
         public event RoutedPropertyChangedEventHandler<double?> ValueChanged
         {
             add { AddHandler(ValueChangedEvent, value); }
@@ -216,7 +208,7 @@ namespace MahApps.Metro.Controls
         /// <summary>
         ///     Gets or sets a value indicating whether the control must have the focus in order to change values using the mouse wheel.
         /// <remarks>
-        ///     If the value is true then the value changes when the mouse wheel is over the control. If the value is false then the value changes only if the control has the focus. If <see cref="InterceptMouseWheel"/> is set to <see cref="bool.False"/> then this property has no effect.
+        ///     If the value is true then the value changes when the mouse wheel is over the control. If the value is false then the value changes only if the control has the focus. If <see cref="InterceptMouseWheel"/> is set to "false" then this property has no effect.
         /// </remarks>
         /// </summary>
         [Category("Behavior")]
@@ -771,9 +763,9 @@ namespace MahApps.Metro.Controls
                 _valueTextBox.Text = string.Format(culture, StringFormat, newValue.Value);
             }
 
-            if ((bool)GetValue(TextboxHelper.IsMonitoringProperty))
+            if ((bool)GetValue(TextBoxHelper.IsMonitoringProperty))
             {
-                SetValue(TextboxHelper.TextLengthProperty, _valueTextBox.Text.Length);
+                SetValue(TextBoxHelper.TextLengthProperty, _valueTextBox.Text.Length);
             }
         }
 
