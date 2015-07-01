@@ -42,8 +42,8 @@
                 Value="{DynamicResource ControlBackgroundBrush}" />
         <Setter Property="Validation.ErrorTemplate"
                 Value="{DynamicResource ValidationErrorTemplate}" />
-        <Setter Property="Focusable"
-                Value="False" />
+        <Setter Property="FocusVisualStyle"
+                Value="{x:Null}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Controls:NumericUpDown}">
@@ -62,12 +62,13 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition x:Name="PART_NumericUpColumn"
-                                                  Width="20" />
+                                                  Width="Auto" />
                                 <ColumnDefinition x:Name="PART_NumericDownColumn"
-                                                  Width="20" />
+                                                  Width="Auto" />
                             </Grid.ColumnDefinitions>
 
                             <TextBox x:Name="PART_TextBox"
+                                     Controls:ControlsHelper.DisabledVisualElementVisibility="Collapsed"
                                      MinWidth="20"
                                      MinHeight="{TemplateBinding MinHeight}"
                                      Foreground="{TemplateBinding Foreground}"
@@ -77,7 +78,7 @@
                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                      BorderThickness="0"
                                      Background="{x:Null}"
-                                     Focusable="True"
+                                     Focusable="{TemplateBinding Focusable}"
                                      HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
                                      VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
                                      IsReadOnly="{TemplateBinding IsReadOnly}"
@@ -91,7 +92,8 @@
                                           Delay="{TemplateBinding Delay}"
                                           Foreground="{TemplateBinding Foreground}"
                                           Style="{DynamicResource ChromelessButtonStyle}"
-                                          IsTabStop="False">
+                                          IsTabStop="False"
+                                          Width="{TemplateBinding UpDownButtonsWidth}">
                                 <Path x:Name="PolygonUp"
                                       Width="14"
                                       Height="14"
@@ -106,7 +108,8 @@
                                           Delay="{TemplateBinding Delay}"
                                           Style="{DynamicResource ChromelessButtonStyle}"
                                           Foreground="{TemplateBinding Foreground}"
-                                          IsTabStop="False">
+                                          IsTabStop="False"
+                                          Width="{TemplateBinding UpDownButtonsWidth}">
                                 <Path x:Name="PolygonDown"
                                       Width="14"
                                       Height="3"
@@ -115,10 +118,30 @@
                                       Data="F1 M 19,38L 57,38L 57,44L 19,44L 19,38 Z " />
                             </RepeatButton>
                         </Grid>
+                        <Border x:Name="DisabledVisualElement"
+                                Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Controls:ControlsHelper.DisabledVisualElementVisibility), Mode=OneWay}"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                BorderBrush="{DynamicResource ControlsDisabledBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{DynamicResource ControlsDisabledBrush}"
+                                IsHitTestVisible="False"
+                                Opacity="0" />
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
+                            <Setter TargetName="DisabledVisualElement"
+                                    Property="Opacity"
+                                    Value="0.6" />
+                        </Trigger>
                         <Trigger Property="IsReadOnly"
                                  Value="True">
+                            <Setter TargetName="PART_NumericUp"
+                                    Property="IsEnabled"
+                                    Value="False" />
+                            <Setter TargetName="PART_NumericDown"
+                                    Property="IsEnabled"
+                                    Value="False" />
                             <Setter Property="InterceptArrowKeys"
                                     Value="False" />
                             <Setter Property="InterceptMouseWheel"

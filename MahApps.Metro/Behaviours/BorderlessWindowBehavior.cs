@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interactivity;
@@ -127,13 +128,28 @@ namespace MahApps.Metro.Behaviours
             }
         }
 
+        /// <summary>Add and remove a native WindowStyle from the HWND.</summary>
+        /// <param name="removeStyle">The styles to be removed.  These can be bitwise combined.</param>
+        /// <param name="addStyle">The styles to be added.  These can be bitwise combined.</param>
+        /// <returns>Whether the styles of the HWND were modified as a result of this call.</returns>
+        /// <SecurityNote>
+        ///   Critical : Calls critical methods
+        /// </SecurityNote>
+        [SecurityCritical]
         private bool _ModifyStyle(Standard.WS removeStyle, Standard.WS addStyle)
         {
-            var dwStyle = (Standard.WS)Standard.NativeMethods.GetWindowLongPtr(this.handle, Standard.GWL.STYLE).ToInt32();
-            var dwNewStyle = (dwStyle & ~removeStyle) | addStyle;
-            if (dwStyle == dwNewStyle) {
+            if (this.handle == IntPtr.Zero)
+            {
                 return false;
             }
+            var intPtr = Standard.NativeMethods.GetWindowLongPtr(this.handle, Standard.GWL.STYLE);
+            var dwStyle = (Standard.WS)(Environment.Is64BitProcess ? intPtr.ToInt64() : intPtr.ToInt32());
+            var dwNewStyle = (dwStyle & ~removeStyle) | addStyle;
+            if (dwStyle == dwNewStyle)
+            {
+                return false;
+            }
+
             Standard.NativeMethods.SetWindowLongPtr(this.handle, Standard.GWL.STYLE, new IntPtr((int)dwNewStyle));
             return true;
         }
@@ -229,7 +245,7 @@ namespace MahApps.Metro.Behaviours
                 AssociatedObject.BorderThickness = new Thickness(0);
 
                 var ignoreTaskBar = metroWindow != null && metroWindow.IgnoreTaskbarOnMaximize;
-                if (ignoreTaskBar)
+                if (ignoreTaskBar && handle != IntPtr.Zero)
                 {
                     // WindowChrome handles the size false if the main monitor is lesser the monitor where the window is maximized
                     // so set the window pos/size twice
@@ -310,6 +326,8 @@ namespace MahApps.Metro.Behaviours
             window.SetIsHitTestVisibleInChromeProperty<ContentPresenter>("PART_LeftWindowCommands");
             window.SetIsHitTestVisibleInChromeProperty<ContentPresenter>("PART_RightWindowCommands");
             window.SetIsHitTestVisibleInChromeProperty<ContentControl>("PART_WindowButtonCommands");
+
+            window.SetWindowChromeResizeGripDirection("WindowResizeGrip", ResizeGripDirection.BottomRight);
         }
 
         [Obsolete(@"This property will be deleted in the next release. You should use BorderThickness=""0"" and a GlowBrush=""Black"" properties in your Window to get a drop shadow around it.")]

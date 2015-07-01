@@ -82,10 +82,9 @@ namespace MahApps.Metro.Controls.Dialogs
 
         private void Initialize()
         {
+            this.Loaded += (sender, args) => HandleTheme();
             ThemeManager.IsThemeChanged += ThemeManager_IsThemeChanged;
             this.Unloaded += BaseMetroDialog_Unloaded;
-
-            HandleTheme();
 
             this.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/MahApps.Metro;component/Themes/Dialogs/BaseMetroDialog.xaml") });
         }
@@ -106,6 +105,12 @@ namespace MahApps.Metro.Controls.Dialogs
             if (DialogSettings != null)
             {
                 var windowTheme = DetectTheme(this);
+                
+                if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this) && windowTheme == null)
+                {
+                    return;
+                }
+                
                 var theme = windowTheme.Item1;
                 var windowAccent = windowTheme.Item2;
 
@@ -242,6 +247,23 @@ namespace MahApps.Metro.Controls.Dialogs
         /// Gets the window that owns the current Dialog IF AND ONLY IF the dialog is shown inside of a window.
         /// </summary>
         protected internal MetroWindow OwningWindow { get; internal set; }
+
+        /// <summary>
+        /// Waits until this dialog gets unloaded.
+        /// </summary>
+        /// <returns></returns>
+        public Task WaitUntilUnloadedAsync()
+        {
+            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+
+            Unloaded += (s,e) =>
+            {
+                tcs.TrySetResult(null);
+            };
+
+            return tcs.Task;
+        }
+
 
         public Task _WaitForCloseAsync()
         {
